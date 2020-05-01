@@ -7,7 +7,7 @@ import subprocess as sp
 import fma_utils
 
 METADATA_REL_PATH = '../data/fma_metadata/'
-DATA_REL_PATH = '../data/fma_small/'
+DATA_REL_PATH = '../data/fma_xsmall/'
 
 metadata_dir = os.path.join(os.path.curdir, METADATA_REL_PATH)
 audio_dir = os.path.join(os.path.curdir, DATA_REL_PATH)

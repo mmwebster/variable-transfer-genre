@@ -15,7 +15,7 @@ k_clusters = 2048
 num_topics = 40
 
 METADATA_REL_PATH = '../data/fma_metadata/'
-DATA_REL_PATH = '../data/fma_small/'
+DATA_REL_PATH = '../data/fma_xsmall/'
 
 print('Loading tracks...')
 tracks = fma_utils.load(os.path.join(os.path.curdir, METADATA_REL_PATH + 'tracks.csv'))
@@ -106,7 +106,8 @@ def make_subgenre_agf(agf):
     
     agf.make_factors()
 
-targets = ['mfcc', 'chroma', 'spectral_contrast', 'subgenres']
+#targets = ['mfcc', 'chroma', 'spectral_contrast', 'subgenres']
+targets = ['mfcc', 'subgenres']
 carry_over = ['mel']
 
 agfs = {t: AGFConstructor() for t in targets}
