@@ -1,14 +1,5 @@
 #!/usr/bin/python3
-
-
-# milo-notes
-# definitely creates the AGFs (the other agf files look like legacy code)
-
-#import sys
-#sys.path.append('../data/fma/')
-
 from collections import defaultdict
-
 import numpy as np
 from sklearn.cluster import MiniBatchKMeans
 import glob
@@ -16,14 +7,21 @@ import os
 import fma_utils
 from gensim.models.ldamulticore import LdaMulticore
 
+# @brief
+# This file transforms per track features (e.g. subgenre, MFCC, etc.)
+# into per-track AGFs (40-dim one-hot vectors, indicating which AGF the track falls under)
+
 k_clusters = 2048
 num_topics = 40
 
+METADATA_REL_PATH = '../data/fma_metadata/'
+DATA_REL_PATH = '../data/fma_small/'
+
 print('Loading tracks...')
-tracks = fma_utils.load('tracks.csv')
+tracks = fma_utils.load(os.path.join(os.path.curdir, METADATA_REL_PATH + 'tracks.csv'))
 
 # path to FMA audio data
-audio_dir = os.path.join(os.path.curdir, 'fma_medium')
+audio_dir = os.path.join(os.path.curdir, DATA_REL_PATH)
 # path to NOT SURE YET
 raw_dir = os.path.join(audio_dir, 'raw')
 # path to directory to save AGF data to
