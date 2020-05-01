@@ -7,9 +7,22 @@ import os
 import fma_utils
 from gensim.models.ldamulticore import LdaMulticore
 
+"""
+@brief This file transforms per track features (e.g. subgenre, MFCC,
+       etc.) into per-track AGFs (40-dim one-hot vectors, indicating
+       which AGF the track falls under). It creates a 'target'
+       directory inside of the provided dataset with files of the
+       following format and contents:
+
+       [track-id]_targets.npz
+           'mel': [mel spectrogram for this track, copied from the
+                   correspond [track-id]_raw.npz]
+           'subgenres': [subgenre AGF for this track]
+           'mfcc': [MFCC AGF for this track]
+"""
+
 # @brief
-# This file transforms per track features (e.g. subgenre, MFCC, etc.)
-# into per-track AGFs (40-dim one-hot vectors, indicating which AGF the track falls under)
+# 
 
 k_clusters = 2048
 num_topics = 40

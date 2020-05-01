@@ -6,6 +6,19 @@ import lws
 import subprocess as sp
 import fma_utils
 
+"""
+@brief This file creates a 'raw' directory inside of the provided
+       dataset while files of the following format and contents
+
+       [track-id]_raw.npz:
+           'mel': [mel spectrogram for this track]
+           'subgenres': [subgenre(s) for this track]
+           'mfcc': [MFCC data for this track]
+
+@TODO cleanup and remove unused portions, for example those that
+      previously saved data to the targets directory
+"""
+
 METADATA_REL_PATH = '../data/fma_metadata/'
 DATA_REL_PATH = '../data/fma_xsmall/'
 
@@ -183,8 +196,8 @@ from multiprocessing import cpu_count, Process, Queue
 features = [  # all of these features will be calculated
     'mel',
     'subgenres',
-    'chroma',
-    'spectral_contrast',
+    #'chroma',
+    #'spectral_contrast',
     'mfcc']
 
 # %% following features will be written to target file
