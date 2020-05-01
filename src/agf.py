@@ -4,6 +4,8 @@
 # milo-notes
 # definitely creates the AGFs (the other agf files look like legacy code)
 
+#import sys
+#sys.path.append('../data/fma/')
 
 from collections import defaultdict
 
@@ -11,14 +13,14 @@ import numpy as np
 from sklearn.cluster import MiniBatchKMeans
 import glob
 import os
-import utils
+import fma_utils
 from gensim.models.ldamulticore import LdaMulticore
 
 k_clusters = 2048
 num_topics = 40
 
 print('Loading tracks...')
-tracks = utils.load('tracks.csv')
+tracks = fma_utils.load('tracks.csv')
 
 # path to FMA audio data
 audio_dir = os.path.join(os.path.curdir, 'fma_medium')
