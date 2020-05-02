@@ -21,11 +21,14 @@ import fma_utils
 
 METADATA_REL_PATH = '../data/fma_metadata/'
 
+# medium dataset
+DATA_REL_PATH = '../data/fma_medium/'
+
 # small dataset for initial STN training (all tracks listed in small metadata)
 #DATA_REL_PATH = '../data/fma_small/'
 
 # extra small dataset for tinkering (same metadata, very few audio tracks)
-DATA_REL_PATH = '../data/fma_xsmall/'
+#DATA_REL_PATH = '../data/fma_xsmall/'
 
 metadata_dir = os.path.join(os.path.curdir, METADATA_REL_PATH)
 audio_dir = os.path.join(os.path.curdir, DATA_REL_PATH)
