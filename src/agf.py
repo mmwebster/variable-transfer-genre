@@ -108,15 +108,14 @@ class AGFConstructor:
 def make_subgenre_agf(agf):
     # for every artist, get list of song subgenres
     for artist_id, subgenre_lists in agf.artist_vectors.items():
-        
         BoW = np.zeros(163, dtype=np.uint32)
-        
+
         for subgenres in subgenre_lists:
             for subgenre in subgenres:
                 BoW[subgenre] += 1
-        
+
         agf.artist_BoWs[artist_id] = BoW
-    
+
     agf.make_factors()
 
 #targets = ['mfcc', 'chroma', 'spectral_contrast', 'subgenres']
@@ -128,12 +127,12 @@ agfs = {t: AGFConstructor() for t in targets}
 print('Loading feature vectors...')
 
 for i, (tid, path) in enumerate(zip(tids, raw_paths)):
-    
+
     features = np.load(path)
-    
+
     for t in targets:
         agfs[t].add_vectors(tracks['artist']['id'][tid], features[t])
-    
+
     if (i + 1) % 50 == 0:
         print('Loaded', i + 1, 'vectors...')
 
@@ -150,10 +149,10 @@ for t in targets:
 for t in targets:
     print('Training k-means for target:', t)
     agfs[t].train_kmeans()
-    
+
     print('Creating BoW vectors for target:', t)
     agfs[t].make_BoWs()
-    
+
     print('Creating artist group factors for target:', t)
     agfs[t].make_factors()
 
@@ -170,13 +169,13 @@ if os.path.exists(target_dir):
 os.mkdir(target_dir)
 
 for tid, path in zip(tids, raw_paths):
-    
+
     out = {t: agfs[t].artist_factors[tracks['artist']['id'][tid]] for t in targets}
-    
+
     # add mel quick and dirty
     f = np.load(path)
-    
+
     for feature in carry_over:
         out[feature] = f[feature]
-    
+
     np.savez(os.path.join(target_dir, str(tid) + '_targets.npz'), **out)

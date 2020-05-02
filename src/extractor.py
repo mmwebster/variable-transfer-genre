@@ -216,71 +216,56 @@ os.mkdir(target_dir)
 
 def apply_all():
     queue = Queue()
-    
+
     for i, filename in enumerate(song_paths):
         queue.put((i, filename))
-    
+
     count = i + 1
-    
+
     def taker():
-        
         while not queue.empty():
-            
             i, filename = queue.get()
-            
+
             try:
                 e.write_feature_files(filename)
             except BaseException as ex:
-                
                 if type(ex) is IndexError:
                     raise ex
-                
                 print('Error extracting features for', filename, type(ex), ex)
-            
             if (i + 1) % 50 == 0:
                 print('Applied procedure to', i + 1, '/', count, 'files')
-    
+
     ps = []
-    
     for _ in range(cpu_count()):
         p = Process(target=taker)
         p.start()
-        
         ps.append(p)
-    
+
     print('Starting...')
-    
+
     import signal
-    
+
     def handler(sig, frame):
-        
         for p in ps:
             p.terminate()
-    
+
     signal.signal(signal.SIGINT, handler)
-    
     for p in ps:
         p.join()
 
 if __name__ == '__main__':
-    
     multicore = True
     e = Extractor(target_dir, features, targets)
-    
+
     if multicore:
-        
         apply_all()
-    
     else:
-        
         for i, filename in enumerate(song_paths):
-            
             try:
                 print('Applying procedure to', filename)
                 e.write_feature_files(filename)
                 print('Applied procedure to', filename)
             except Exception as ex:
                 print('Error extracting features for', filename, ex)
-            
             if (i + 1) % 50 == 0:
                 print('Applied procedure to', i + 1, 'files')
