@@ -28,7 +28,13 @@ k_clusters = 2048
 num_topics = 40
 
 METADATA_REL_PATH = '../data/fma_metadata/'
+
+# small dataset for initial STN training (all tracks listed in small metadata)
+#DATA_REL_PATH = '../data/fma_small/'
+
+# extra small dataset for tinkering (same metadata, very few audio tracks)
 DATA_REL_PATH = '../data/fma_xsmall/'
+
 
 print('Loading tracks...')
 tracks = fma_utils.load(os.path.join(os.path.curdir, METADATA_REL_PATH + 'tracks.csv'))
