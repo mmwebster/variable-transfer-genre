@@ -1,3 +1,4 @@
+import numpy as np
 import glob
 import os
 import torch
@@ -6,63 +7,82 @@ import warnings
 import torch.multiprocessing
 import torch.nn.functional as F
 
+from torch.utils.data import Dataset, DataLoader, random_split
+
 # this is really important - without this the program fails with a 
 # "too many files open" error, at least on UNIX systems
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 warnings.filterwarnings("ignore")
 
-import numpy as np
-
 from multiprocessing import cpu_count
 import fma_utils as utils
 
+
+
 np.random.seed(0)
 
-audio_dir = '../data/fma_medium' #path to audio files
-target_dir = os.path.join(audio_dir, 'targets') #path to extracted spectograms and targets  (stored in npz)
+# path to all data and metadata
+BASE_PATH = '../data/'
 
-os.environ['AUDIO_DIR'] = audio_dir #idk what this does
-
-tracks = utils.load('../data/fma_metadata/tracks.csv') #load tracks df
-genres = utils.load('../data/fma_metadata/genres.csv') #load genres df
-
-target_paths = [*glob.iglob(os.path.join(target_dir, '*_targets.npz'), recursive=True)] #list paths to targets
-tids = list(map(lambda x: int(os.path.splitext(os.path.basename(x).replace('_targets', ''))[0]), target_paths)) #list of track ids
-
-tracks_subset = tracks['track'].loc[tids] #track name?
-genres_subset = tracks_subset['genre_top'] #genre for each track 
-artists_subset = tracks['artist'].loc[tids]
-
-from torch.utils.data import Dataset, DataLoader, random_split
-
-genre_counts = genres_subset.value_counts()
-genre_counts = genre_counts[genre_counts > 0]
-
-print(genre_counts)
-
-coded_genres = {genre: k for k, genre in enumerate(genre_counts.index)}
-coded_genres_reverse = {k: genre for genre, k in coded_genres.items()}
-
-print(coded_genres)
-
-# X frames with 50% overlap = 2X-1 frames
-num_frames = 4
-total_frames = 2 * num_frames - 1
-frame_size = 1290 // num_frames
+# @TODO Refactor class:
+#           - naming is misleading, dataset is configured in two places
+#           - move into the other dataset class and parameterize there
+#           - (just moved global constants and feature extraction
+#              stuff to here to parameterize instead of having to
+#              reload the training notebook's kernel every time we
+#              switch datasets)
+class DatasetSettings:
+    def __init__(self, data_name, metadata_name):
+        # set paths to data and metadata
+        self.data_dir = os.path.join(BASE_PATH, data_name)
+        self.metadata_dir = os.path.join(BASE_PATH, metadata_name)
+        # path to extracted spectograms and targets  (stored in npz)
+        self.target_dir = os.path.join(self.data_dir, 'targets')
+        # set env var for FMA utils.py script to know where to look
+        # for audio data
+        os.environ['AUDIO_DIR'] = self.data_dir
+        # grab track and genre metadata
+        self.tracks = utils.load('../data/fma_metadata/tracks.csv') #load tracks df
+        self.genres = utils.load('../data/fma_metadata/genres.csv') #load genres df
+        # grab paths to target files and a list of their track IDs
+        self.target_paths = [*glob.iglob(os.path.join(self.target_dir,
+            '*_targets.npz'), recursive=True)]
+        self.tids = list(map(lambda x: int(os.path.splitext(
+            os.path.basename(x).replace('_targets', ''))[0]),
+            self.target_paths))
+        # grab metadata for tracks available in the current subset of
+        # data (metadata contains all tracks, data contains a subset
+        # corresponding to the particular size, e.g. fma_small)
+        self.tracks_subset = self.tracks['track'].loc[self.tids] #track name?
+        self.genres_subset = self.tracks_subset['genre_top'] #genre for each track 
+        self.artists_subset = self.tracks['artist'].loc[self.tids]
+        # count genre occurences
+        genre_counts = self.genres_subset.value_counts()
+        self.genre_counts = genre_counts[genre_counts > 0]
+        self.num_genres = len(self.genre_counts)
+        # create genre lookups
+        self.coded_genres = {genre: k for k, genre in enumerate(self.genre_counts.index)}
+        self.coded_genres_reverse = {k: genre for genre, k in self.coded_genres.items()}
+        # some fixed settings
+        # X frames with 50% overlap = 2X-1 frames
+        self.num_frames = 4
+        self.total_frames = 2 * self.num_frames - 1
+        self.frame_size = 1290 // self.num_frames
 
 class FeatureDataset(Dataset):
-    def __init__(self, agfs=[], genre=True):
+    def __init__(self, settings: DatasetSettings, agfs=[], genre=True):
         super().__init__()
         self.agfs = agfs
         self.genre = genre
+        self.settings = settings
         
     def __len__(self):
-        return len(target_paths)
+        return len(self.settings.target_paths)
     
     def __getitem__(self, idx):
-        path = target_paths[idx]
-        tid = tids[idx]
+        path = self.settings.target_paths[idx]
+        tid = self.settings.tids[idx]
         
         # argmax these
         features = {}
@@ -75,26 +95,26 @@ class FeatureDataset(Dataset):
             mel = data['mel']
         
         if self.genre:
-            features['genre'] = coded_genres[tracks_subset['genre_top'][tid]]
+            features['genre'] = self.settings.coded_genres[self.settings.tracks_subset['genre_top'][tid]]
         
         return mel, features
 
 class FramedFeatureDataset(FeatureDataset):
     def __len__(self):
-        return total_frames * super().__len__()
+        return self.settings.total_frames * super().__len__()
     
     def __getitem__(self, idx):
         if isinstance(idx, torch.Tensor):
             idx = idx.item()
         
-        song_idx, frame = divmod(idx, total_frames)
+        song_idx, frame = divmod(idx, self.settings.total_frames)
         mel, features = super().__getitem__(song_idx)
         
         shift, half_shift = divmod(frame, 2)
-        i = shift * frame_size + half_shift * frame_size // 2
+        i = shift * self.settings.frame_size + half_shift * self.settings.frame_size // 2
         
         # add channel dimension so its 1x128x(frame_size)
-        mel_frame = np.expand_dims(mel[:, i:i + frame_size], axis=0)
+        mel_frame = np.expand_dims(mel[:, i:i + self.settings.frame_size], axis=0)
         
         return mel_frame, features
 
