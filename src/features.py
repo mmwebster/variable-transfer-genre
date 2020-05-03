@@ -17,7 +17,9 @@ import numpy as np
 from multiprocessing import cpu_count
 import fma_utils as utils
 
-audio_dir = '../data/fma_small' #path to audio files
+np.random.seed(0)
+
+audio_dir = '../data/fma_medium' #path to audio files
 target_dir = os.path.join(audio_dir, 'targets') #path to extracted spectograms and targets  (stored in npz)
 
 os.environ['AUDIO_DIR'] = audio_dir #idk what this does
