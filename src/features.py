@@ -9,6 +9,9 @@ import torch.nn.functional as F
 
 from torch.utils.data import Dataset, DataLoader, random_split
 
+# set global random seed for torch
+torch.manual_seed(0)
+
 # this is really important - without this the program fails with a 
 # "too many files open" error, at least on UNIX systems
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -19,8 +22,6 @@ from multiprocessing import cpu_count
 import fma_utils as utils
 
 
-
-np.random.seed(0)
 
 # path to all data and metadata
 BASE_PATH = '../data/'
