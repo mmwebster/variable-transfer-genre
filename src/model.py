@@ -136,16 +136,17 @@ class STN(nn.Module):
         return gap(x)
     
 class MLP(nn.Module):
-    def __init__(self, input_dims):
+    def __init__(self, input_dims, output_dims):
         super().__init__()
         self.input_dims = input_dims
+        self.output_dims = output_dims
         
         self.fc = nn.Sequential(
                     
                     nn.Linear(self.input_dims, out_features=1024),
                     nn.ELU(),
                     nn.Dropout(p=0.5),
-                    nn.Linear(in_features=1024, out_features=num_targets)
+                    nn.Linear(in_features=1024, out_features=self.output_dims)
         
         )
         
