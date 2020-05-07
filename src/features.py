@@ -128,7 +128,7 @@ def get_data_loaders(dataset, batch_size, valid_split):
     
     train_dataset, valid_dataset = random_split(dataset, [train_len, valid_len])
     
-    # disable if it fucks things up but if it doesnt its apparently rly good 
+    # disable if it messes things up but if it doesnt its apparently rly good
     pin_memory = True
     
     train_loader = DataLoader(train_dataset,
