@@ -130,7 +130,7 @@ class STN(nn.Module):
         #GlobalAvgPool for intermediate layers
         gap = GlobalAvgPool()
         
-        for i in range(layer_no - 1):
+        for i in range(layer_no):
             x = layers[i](x)
         
         return gap(x)
