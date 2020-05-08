@@ -1,3 +1,9 @@
+# Credit:
+# This FMA dataset utilities file was copied from the FMA dataset's
+# repo at https://github.com/mdeff/fma/. No modifications have
+# been made.
+# @TODO submodule the FMA repo instead of copying this file
+
 import dotenv
 import pydot
 import requests

@@ -1,3 +1,11 @@
+# Credit:
+# This model file was copied from the project
+# "https://github.com/falkaer/artist-group-factors", which also
+# attempted to replicate the findings of Kim et al
+# (https://arxiv.org/pdf/1805.02043.pdf).
+# The Flatten, GlobalAvgPool, and STN classes were copied from this
+# source. Other classes are classes.
+
 import torch
 import torch.nn as nn
 

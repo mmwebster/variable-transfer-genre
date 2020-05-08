@@ -1,3 +1,10 @@
+# Credit:
+# This data/feature loader file was copied from the project
+# "https://github.com/falkaer/artist-group-factors", which also
+# attempted to replicate the findings of Kim et al
+# (https://arxiv.org/pdf/1805.02043.pdf).
+# Some modifications have been made, which are tracked in Git.
+
 import numpy as np
 import glob
 import os
