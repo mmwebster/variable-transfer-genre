@@ -48,7 +48,7 @@ def find_available_mlp_models(dataset_name, possible_targets, possible_layers):
     return available_mlp_models
 
 # Take a list of MLP model metadata and return list of corresponding final F1 scores for each model
-def get_model_f1s(available_mlp_models):
+def get_mlp_f1s(available_mlp_models):
     # list of dictionaries of final F1 scores for MLPs transferred from various combinations of STNs
     f1s = []
 
@@ -61,7 +61,7 @@ def get_model_f1s(available_mlp_models):
     return f1s
 
 # Take a list of MLP model metadata and return list of corresponding loss histories for each model
-def get_model_loss_histories(available_mlp_models):
+def get_mlp_loss_histories(available_mlp_models):
     # list of dictionaries of loss histories for MLPs transferred from various combinations of STNs
     loss_histories = []
 
@@ -71,3 +71,16 @@ def get_model_loss_histories(available_mlp_models):
         loss_histories.append(np.fromfile(filename))
 
     return loss_histories
+
+# Take a list of MLP model metadata and return list of corresponding final F1 scores for each model
+def get_stn_f1s(available_stn_models):
+    # list of dictionaries of final F1 scores for MLPs transferred from various combinations of STNs
+    f1s = []
+
+    # iterate through all combinations of targets and layers, ignoring those not present
+    for model in available_stn_models:
+        filename = f"logs/final_STN_{model['dataset']}_{model['target']}"
+        f1_one_element_array = np.fromfile(filename)
+        f1s.append(f1_one_element_array[0])
+
+    return f1s
